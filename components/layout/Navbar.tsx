@@ -28,8 +28,13 @@ export default function Navbar() {
 
   // Efecto para sincronizar el carrito (solo cuando cambia la autenticación)
   useEffect(() => {
+    // Si el usuario está autenticado Y el carrito no se ha sincronizado
     if (isAuthenticated && !isInitialized) {
       syncCartWithApi();
+    }
+    // Si el usuario NO está autenticado, limpiamos el carrito
+    if (!isAuthenticated) {
+      useCartStore.getState().clearCart();
     }
   }, [isAuthenticated, isInitialized, syncCartWithApi]);
 

@@ -110,21 +110,21 @@ export default function SaveatLandingPage() {
           <div className={mobileMenuClasses} id="nav-content" ref={navRef}>
             <ul className="list-none lg:flex justify-end flex-1 items-center">
               <li className="mr-3">
-                <a className={navLinkClasses} href="#como-funciona">
+                <Link className={navLinkClasses} href="#como-funciona">
                   Cómo funciona
-                </a>
+                </Link>
               </li>
               <li className="mr-3">
-                <a className={loginClasses} href="/login">
+                <Link className={loginClasses} href="/login">
                   Iniciar Sesión
-                </a>
+                </Link>
               </li>
             </ul>
-            <a href="/register">
+            <Link href="/register">
               <button id="navAction" className={navActionClasses}>
                 Crear una Cuenta
               </button>
-            </a>
+            </Link>
           </div>
         </div>
         <hr className="border-b border-gray-100 opacity-25 my-0 py-0" />
@@ -143,17 +143,19 @@ export default function SaveatLandingPage() {
               Únete a nuestra comunidad y obtén productos de alta calidad a un
               precio increíble, ayudando al planeta.
             </p>
-            <a href="/tienda" className="mx-auto lg:mx-0">
+            <Link href="/tienda" className="mx-auto lg:mx-0">
               <button className="hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
                 Explorar Productos
               </button>
-            </a>
+            </Link>
           </div>
           <div className="w-full md:w-3/5 py-6 text-center">
             <Image
               className="w-full md:w-4/5 z-50 rounded-lg"
-              src="https://placehold.co/600x400/a3e635/14532d?text=Saveat"
+              src="/images/food/rescued_food-1.jpeg"
               alt="Platillo de comida rescatada"
+              width={300}
+              height={200}
             />
           </div>
         </div>
@@ -223,8 +225,10 @@ export default function SaveatLandingPage() {
             <div className="w-full sm:w-1/2 p-6">
               <Image
                 className="w-full sm:h-64 mx-auto rounded-lg"
-                src="https://placehold.co/600x400/86efac/166534?text=Empresas+Donadoras"
+                src="/images/donors/donors-1.jpg"
                 alt="Empresas donando"
+                width={600}
+                height={400}
               />
             </div>
           </div>
@@ -232,8 +236,10 @@ export default function SaveatLandingPage() {
             <div className="w-full sm:w-1/2 p-6 mt-6">
               <Image
                 className="w-5/6 sm:h-64 mx-auto rounded-lg"
-                src="https://placehold.co/600x400/bbf7d0/166534?text=Comunidad+Saveat"
+                src="/images/food/people_donate_food.jpg"
                 alt="Comunidad comprando"
+                width={600}
+                height={400}
               />
             </div>
             <div className="w-full sm:w-1/2 p-6 mt-6">
@@ -351,11 +357,11 @@ export default function SaveatLandingPage() {
         <h3 className="my-4 text-3xl leading-tight">
           Únete a Saveat y sé parte de la solución.
         </h3>
-        <a href="/register">
+        <Link href="/register">
           <button className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
             ¡Crear una Cuenta!
           </button>
-        </a>
+        </Link>
       </section>
 
       <footer className="bg-white text-gray-800">
@@ -386,28 +392,28 @@ export default function SaveatLandingPage() {
               <p className="uppercase text-gray-500 md:mb-6">Enlaces</p>
               <ul className="list-none mb-6">
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     FAQ
-                  </a>
+                  </Link>
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Ayuda
-                  </a>
+                  </Link>
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Soporte
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -415,20 +421,20 @@ export default function SaveatLandingPage() {
               <p className="uppercase text-gray-500 md:mb-6">Legal</p>
               <ul className="list-none mb-6">
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Términos
-                  </a>
+                  </Link>
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Privacidad
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -436,28 +442,28 @@ export default function SaveatLandingPage() {
               <p className="uppercase text-gray-500 md:mb-6">Social</p>
               <ul className="list-none mb-6">
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Facebook
-                  </a>
+                  </Link>
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Instagram
-                  </a>
+                  </Link>
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <a
+                  <Link
                     href="#"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Twitter
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
