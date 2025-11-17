@@ -32,7 +32,7 @@ export default function CartPage() {
   };
 
   const total = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + (item.price || 0) * item.quantity,
     0
   );
 
@@ -46,20 +46,22 @@ export default function CartPage() {
         <p>Tu carrito está vacío.</p>
       ) : (
         <div>
-          {items.map((item) => (
+          {items.map((item, index) => (
             <div
-              key={item._id}
+              key={item._id || index} // <-- Usamos 'index' como fallback por si _id no existe
               className="flex justify-between items-center mb-4 p-4 border rounded-lg"
             >
               <div>
-                <h2 className="text-xl font-semibold">{item.name}</h2>
+                <h2 className="text-xl font-semibold">
+                  {item.name || "Producto no disponible"}
+                </h2>
                 <p>
-                  ${item.price.toFixed(2)} x {item.quantity}
+                  ${(item.price || 0).toFixed(2)} x {item.quantity}
                 </p>
               </div>
               <div>
                 <p className="text-lg font-bold">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  ${((item.price || 0) * item.quantity).toFixed(2)}
                 </p>
                 <Button
                   variant="destructive"

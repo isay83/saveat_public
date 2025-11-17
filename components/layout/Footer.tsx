@@ -14,12 +14,12 @@ export default function Footer() {
             <h5 className="font-bold mb-2">Navegación</h5>
             <ul className="text-sm">
               <li>
-                <Link href="/tienda" className="hover:text-green-700">
+                <Link href="/store" className="hover:text-green-700">
                   Tienda
                 </Link>
               </li>
               <li>
-                <Link href="/nosotros" className="hover:text-green-700">
+                <Link href="/about" className="hover:text-green-700">
                   Sobre Nosotros
                 </Link>
               </li>
@@ -29,12 +29,12 @@ export default function Footer() {
             <h5 className="font-bold mb-2">Legal</h5>
             <ul className="text-sm">
               <li>
-                <Link href="/terminos" className="hover:text-green-700">
+                <Link href="/terms" className="hover:text-green-700">
                   Términos
                 </Link>
               </li>
               <li>
-                <Link href="/privacidad" className="hover:text-green-700">
+                <Link href="/privacy" className="hover:text-green-700">
                   Privacidad
                 </Link>
               </li>
@@ -49,7 +49,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/soporte" className="hover:text-green-700">
+                <Link href="/support" className="hover:text-green-700">
                   Soporte
                 </Link>
               </li>

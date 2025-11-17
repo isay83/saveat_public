@@ -55,20 +55,20 @@ export default function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/tienda" className="text-2xl font-bold text-green-700">
+        <Link href="/store" className="text-2xl font-bold text-green-700">
           Saveat
         </Link>
 
         {/* Links de Navegación (Desktop) */}
         <div className="hidden md:flex gap-6 items-center">
-          <Link href="/tienda" className="text-gray-600 hover:text-green-700">
+          <Link href="/store" className="text-gray-600 hover:text-green-700">
             Tienda
           </Link>
-          <Link href="/nosotros" className="text-gray-600 hover:text-green-700">
+          <Link href="/about" className="text-gray-600 hover:text-green-700">
             Sobre Nosotros
           </Link>
 
-          <Link href="/carrito" className="relative p-2">
+          <Link href="/cart" className="relative p-2">
             <ShoppingCart className="text-gray-600 hover:text-green-700" />
             {/* Solo mostramos el contador si es mayor a 0 */}
             {cartCount > 0 && (
@@ -80,7 +80,7 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <>
-              <Link href="/perfil" className="p-2">
+              <Link href="/profile" className="p-2">
                 <User className="text-gray-600 hover:text-green-700" />
               </Link>
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -100,7 +100,7 @@ export default function Navbar() {
 
         {/* Botón de Menú Móvil */}
         <div className="md:hidden flex items-center">
-          <Link href="/carrito" className="relative p-2 mr-2">
+          <Link href="/cart" className="relative p-2 mr-2">
             <ShoppingCart className="text-gray-600" />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -117,19 +117,16 @@ export default function Navbar() {
       {/* Menú Móvil */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg absolute w-full z-40">
-          <Link href="/tienda" className="block p-4 border-t hover:bg-gray-50">
+          <Link href="/store" className="block p-4 border-t hover:bg-gray-50">
             Tienda
           </Link>
-          <Link
-            href="/nosotros"
-            className="block p-4 border-t hover:bg-gray-50"
-          >
+          <Link href="/about" className="block p-4 border-t hover:bg-gray-50">
             Sobre Nosotros
           </Link>
           {isAuthenticated ? (
             <>
               <Link
-                href="/perfil"
+                href="/profile"
                 className="block p-4 border-t hover:bg-gray-50"
               >
                 Mi Perfil

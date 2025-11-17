@@ -66,6 +66,7 @@ export default function ProductCard({ product }: { product: Product }) {
           className="rounded-t-lg object-cover h-48 w-full"
           width={300}
           height={200}
+          loading="eager"
         />
         <div className="p-4">
           <CardTitle className="text-lg h-14">{product.name}</CardTitle>

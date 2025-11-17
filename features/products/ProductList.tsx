@@ -17,14 +17,22 @@ interface SearchParams {
 }
 
 // Este es un Server Component que hace el fetch de datos
-async function getProducts(searchParams: SearchParams) {
+async function getProducts({
+  search,
+  category,
+  page,
+}: {
+  search?: string | string[];
+  category?: string | string[];
+  page?: string | string[];
+}) {
   try {
     // Aquí puedes construir los params para la API (ej. /products?search=...&category=...)
     const { data } = await api.get("/products", {
       params: {
-        search: searchParams?.search,
-        category: searchParams?.category,
-        page: searchParams?.page,
+        search: search,
+        category: category,
+        page: page,
       },
     });
     return data.products; // Basado en tu API
@@ -40,7 +48,15 @@ export default async function ProductList({
 }: {
   searchParams: SearchParams;
 }) {
-  const products: Product[] = await getProducts(searchParams);
+  // Extraemos los parámetros de búsqueda
+  const params = await searchParams;
+  // Leemos las propiedades del objeto dinámico searchParams.
+  // Como ProductList es 'async', esto es seguro.
+  const search = params?.search as string | undefined;
+  const category = params?.category as string | undefined;
+  const page = params?.page as string | undefined;
+  // Pasamos los valores planos (strings) a getProducts
+  const products: Product[] = await getProducts({ search, category, page });
 
   if (products.length === 0) {
     return <p>No hay productos disponibles por el momento.</p>;

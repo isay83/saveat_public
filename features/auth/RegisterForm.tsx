@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 // import { Toaster } from "@/components/ui/sonner";
 
-export default function LoginPage() {
+export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [first_name, setFirst_name] = useState("");
@@ -27,7 +27,13 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post("/users/register", { email, password });
+      const response = await api.post("/users/register", {
+        email,
+        password,
+        first_name,
+        last_name,
+        postal_code,
+      });
 
       // ¡Éxito!
       localStorage.setItem("saveat_token", response.data.token);
@@ -46,7 +52,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Iniciar Sesión</CardTitle>
+          <CardTitle>Registrarse</CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
