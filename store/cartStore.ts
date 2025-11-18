@@ -20,7 +20,7 @@ export interface CartItem extends Product {
 interface ApiCartItem {
     _id: string; // ID del *item del carrito*
     user_id: string;
-    product_id: Product; // El producto populado
+    product_id: Product | null; // El producto populado
     quantity: number;
     expires_at: string;
 }
@@ -49,7 +49,10 @@ type CartState = {
 export const useCartStore = create<CartState>((set) => {
     // Esta función vive DENTRO del callback de 'create', pero
     // FUERA del objeto de estado que se retorna.
-    const _apiItemToCartItem = (apiItem: ApiCartItem): CartItem => {
+    const _apiItemToCartItem = (apiItem: ApiCartItem): CartItem | null => {
+        if (!apiItem.product_id) {
+            return null; // Maneja el caso donde el producto es null
+        }
         return {
             ...apiItem.product_id, // Expande los datos del producto
             quantity: apiItem.quantity, // Usa la cantidad del carrito
@@ -63,7 +66,9 @@ export const useCartStore = create<CartState>((set) => {
             try {
                 const { data } = await api.get<ApiCartItem[]>('/cart');
                 // --- CORRECCIÓN 4: 'map' ahora usa la función interna ---
-                const cartItems = data.map(_apiItemToCartItem);
+                const cartItems = data
+                    .map(_apiItemToCartItem) // Convierte cada item de la API
+                    .filter((item): item is CartItem => item !== null); // Filtra nulos
                 // --- CORRECCIÓN 4: 'set' actualiza el estado ---
                 set({ items: cartItems, isInitialized: true });
             } catch (error) {
@@ -81,6 +86,8 @@ export const useCartStore = create<CartState>((set) => {
             set((state) => {
                 // --- CORRECCIÓN 4: Usamos la función interna ---
                 const newItem = _apiItemToCartItem(data);
+                if (!newItem) return state; // Si es nulo, no hacemos nada
+
                 const existingItemIndex = state.items.findIndex((i) => i._id === newItem._id);
 
                 if (existingItemIndex > -1) {
