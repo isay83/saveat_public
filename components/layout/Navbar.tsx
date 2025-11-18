@@ -2,7 +2,7 @@
 
 import { useState, useEffect, startTransition } from "react";
 import Link from "next/link";
-import { ShoppingCart, User, Menu, X } from "lucide-react";
+import { ShoppingCart, User, Menu, X, PackageCheck } from "lucide-react";
 import { useCartStore } from "@/store/cartStore"; // Asumimos que lo crearemos aquí
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,8 @@ export default function Navbar() {
   const items = useCartStore((state) => state.items);
   const isInitialized = useCartStore((state) => state.isInitialized);
   const syncCartWithApi = useCartStore((state) => state.syncCartWithApi);
+  const usage = useCartStore((state) => state.usage); // <--- NUEVO
+  const fetchUsage = useCartStore((state) => state.fetchUsage); // <--- NUEVO
   const cartCount = items.length; // O puedes sumar 'quantity'
 
   // Efecto SOLO para revisar el localStorage al montar el componente
@@ -28,22 +30,26 @@ export default function Navbar() {
 
   // Efecto para sincronizar el carrito (solo cuando cambia la autenticación)
   useEffect(() => {
-    // Si el usuario está autenticado Y el carrito no se ha sincronizado
-    if (isAuthenticated && !isInitialized) {
-      syncCartWithApi();
-    }
+    // Función para cargar los datos del usuario (carrito y límite)
+    const fetchUserData = async () => {
+      // Si el usuario está autenticado Y el carrito no se ha sincronizado
+      if (!isInitialized) {
+        await syncCartWithApi();
+      } else {
+        await fetchUsage();
+      }
+    };
     // Si el usuario NO está autenticado, limpiamos el carrito
-    if (!isAuthenticated) {
-      useCartStore.getState().clearCart();
+    if (isAuthenticated) {
+      fetchUserData();
     }
-  }, [isAuthenticated, isInitialized, syncCartWithApi]);
+  }, [isAuthenticated, isInitialized, syncCartWithApi, fetchUsage]);
 
   const handleLogout = () => {
     localStorage.removeItem("saveat_token");
     localStorage.removeItem("saveat_user");
     setIsAuthenticated(false);
-    // Limpia el carrito de Zustand
-    useCartStore.getState().clearCart();
+    useCartStore.getState().clearCart(); // Esto resetea 'items' y 'usage'
     router.push("/login");
     router.refresh(); // Forzamos un refresh para limpiar estados
   };
@@ -67,6 +73,18 @@ export default function Navbar() {
           <Link href="/about" className="text-gray-600 hover:text-green-700">
             Sobre Nosotros
           </Link>
+
+          {/* --- MODIFICACIÓN: El contador ahora lee 'usage' desde el store --- */}
+          {isAuthenticated && usage.limit > 0 && (
+            <div className="flex items-center gap-1 text-sm text-gray-600 p-2 bg-gray-100 rounded-md">
+              <PackageCheck className="h-4 w-4 text-green-700" />
+              <span>Límite:</span>
+              <span className="font-bold">
+                {usage.used} / {usage.limit}
+              </span>
+            </div>
+          )}
+          {/* --- FIN: NUEVO CONTADOR DE LÍMITE --- */}
 
           <Link href="/cart" className="relative p-2">
             <ShoppingCart className="text-gray-600 hover:text-green-700" />
