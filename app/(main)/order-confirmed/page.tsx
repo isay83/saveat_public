@@ -38,7 +38,7 @@ export default function OrderConfirmedPage() {
             asChild
             className="bg-green-700 hover:bg-green-800 text-lg px-6 py-3"
           >
-            <Link href="/profile">Ver mis pedidos</Link>
+            <Link href="/profile/orders">Ver mis pedidos</Link>
           </Button>
           <Button variant="outline" asChild className="text-lg px-6 py-3">
             <Link href="/store">Seguir comprando</Link>

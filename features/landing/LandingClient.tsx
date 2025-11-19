@@ -51,7 +51,7 @@ export default function SaveatLandingPage() {
       : "text-white hover:text-gray-200"
   }`;
 
-  const navActionClasses = `mx-auto lg:mx-0 font-bold rounded-full mt-4 lg:mt-0 py-3 px-6 shadow focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out ${
+  const navActionClasses = `mx-auto lg:mx-0 font-bold rounded-full mt-4 lg:mt-0 py-3 px-6 shadow focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out cursor-pointer ${
     isHeaderScrolled
       ? "bg-gradient-to-r from-emerald-700 to-green-900 text-white hover:underline"
       : "bg-white text-gray-800 hover:underline"
@@ -130,7 +130,7 @@ export default function SaveatLandingPage() {
         <hr className="border-b border-gray-100 opacity-25 my-0 py-0" />
       </nav>
 
-      <div className="pt-24">
+      <div className="pt-24 mb-24">
         <div className="container px-3 mx-auto flex flex-wrap flex-col md:flex-row items-center">
           <div className="flex flex-col w-full md:w-2/5 justify-center items-start text-center md:text-left">
             <p className="uppercase tracking-loose w-full">
@@ -143,8 +143,8 @@ export default function SaveatLandingPage() {
               Únete a nuestra comunidad y obtén productos de alta calidad a un
               precio increíble, ayudando al planeta.
             </p>
-            <Link href="/tienda" className="mx-auto lg:mx-0">
-              <button className="hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
+            <Link href="/store" className="mx-auto lg:mx-0">
+              <button className="hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform hover:scale-105 duration-300 ease-in-out cursor-pointer">
                 Explorar Productos
               </button>
             </Link>
@@ -240,6 +240,7 @@ export default function SaveatLandingPage() {
                 alt="Comunidad comprando"
                 width={600}
                 height={400}
+                loading="eager"
               />
             </div>
             <div className="w-full sm:w-1/2 p-6 mt-6">
@@ -358,7 +359,7 @@ export default function SaveatLandingPage() {
           Únete a Saveat y sé parte de la solución.
         </h3>
         <Link href="/register">
-          <button className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
+          <button className="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out cursor-pointer">
             ¡Crear una Cuenta!
           </button>
         </Link>
@@ -393,7 +394,7 @@ export default function SaveatLandingPage() {
               <ul className="list-none mb-6">
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
                   <Link
-                    href="#"
+                    href="/faq"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     FAQ
@@ -401,15 +402,7 @@ export default function SaveatLandingPage() {
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
                   <Link
-                    href="#"
-                    className="no-underline hover:underline text-gray-800 hover:text-green-700"
-                  >
-                    Ayuda
-                  </Link>
-                </li>
-                <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-                  <Link
-                    href="#"
+                    href="/support"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Soporte
@@ -422,7 +415,7 @@ export default function SaveatLandingPage() {
               <ul className="list-none mb-6">
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
                   <Link
-                    href="#"
+                    href="/terms"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Términos
@@ -430,7 +423,7 @@ export default function SaveatLandingPage() {
                 </li>
                 <li className="mt-2 inline-block mr-2 md:block md:mr-0">
                   <Link
-                    href="#"
+                    href="/privacy"
                     className="no-underline hover:underline text-gray-800 hover:text-green-700"
                   >
                     Privacidad
