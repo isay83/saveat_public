@@ -47,7 +47,7 @@ export default function AboutView() {
             <div className="space-y-4">
               <div className="h-48 bg-green-100 rounded-2xl overflow-hidden relative">
                 <Image
-                  src="https://placehold.co/400x600/86efac/166534?text=Comunidad"
+                  src="/images/food/community-farm.jpg"
                   alt="Comunidad"
                   fill
                   className="object-cover"
@@ -55,7 +55,7 @@ export default function AboutView() {
               </div>
               <div className="h-32 bg-emerald-100 rounded-2xl overflow-hidden relative">
                 <Image
-                  src="https://placehold.co/400x400/bbf7d0/166534?text=Frutas"
+                  src="/images/food/fresh-fruits-basket.jpg"
                   alt="Frutas"
                   fill
                   className="object-cover"
@@ -65,7 +65,7 @@ export default function AboutView() {
             <div className="space-y-4 pt-8">
               <div className="h-32 bg-teal-100 rounded-2xl overflow-hidden relative">
                 <Image
-                  src="https://placehold.co/400x400/99f6e4/115e59?text=Verduras"
+                  src="/images/food/vegetables.jpg"
                   alt="Verduras"
                   fill
                   className="object-cover"
@@ -73,7 +73,7 @@ export default function AboutView() {
               </div>
               <div className="h-48 bg-green-50 rounded-2xl overflow-hidden relative">
                 <Image
-                  src="https://placehold.co/400x600/dcfce7/14532d?text=Planeta"
+                  src="/images/food/hands-earth.jpg"
                   alt="Planeta"
                   fill
                   className="object-cover"
@@ -89,7 +89,7 @@ export default function AboutView() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800">
-              Lo Que Nos Mueve
+              Lo que nos mueve
             </h2>
           </div>
           <div className="grid md:grid-cols-4 gap-8">

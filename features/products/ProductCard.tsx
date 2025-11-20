@@ -159,6 +159,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <CardFooter className="p-4 flex flex-col gap-2">
         <div className="flex items-center justify-center w-full gap-2">
           <Button
+            className="cursor-pointer"
             variant="outline"
             size="icon"
             onClick={() => handleQuantityChange(-1)}
@@ -180,6 +181,7 @@ export default function ProductCard({ product }: { product: Product }) {
             }}
           />
           <Button
+            className="cursor-pointer"
             variant="outline"
             size="icon"
             onClick={() => handleQuantityChange(1)}
@@ -191,7 +193,7 @@ export default function ProductCard({ product }: { product: Product }) {
           </Button>
         </div>
         <Button
-          className="w-full bg-green-700 hover:bg-green-800"
+          className="w-full bg-green-700 hover:bg-green-800 cursor-pointer"
           onClick={handleAddToCart}
           disabled={isAddDisabled || quantity === quantityInCart} // Deshabilitar si no hay stock
         >
