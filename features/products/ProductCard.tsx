@@ -136,6 +136,7 @@ export default function ProductCard({ product }: { product: Product }) {
           className="rounded-t-lg object-cover h-48 w-full"
           width={300}
           height={200}
+          sizes="(max-width: 768px) 100vw, 300px"
           loading="eager"
         />
         <div className="p-4">
@@ -144,7 +145,7 @@ export default function ProductCard({ product }: { product: Product }) {
       </CardHeader>
       <CardContent className="p-4">
         <p className="text-2xl font-bold text-green-700">
-          ${product.price.toFixed(2)}
+          {product.price > 0 ? "$" + product.price.toFixed(2) : "Gratis"}
         </p>
         <p className="text-sm text-gray-500">
           {product.unit} | Quedan: {product.quantity_available}

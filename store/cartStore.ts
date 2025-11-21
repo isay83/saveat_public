@@ -66,7 +66,7 @@ const _apiItemToCartItem = (apiItem: ApiCartItem): CartItem | null => {
 export const useCartStore = create<CartState>((set, get) => ({
 
     items: [],
-    isInitialized: false,
+    isInitialized: false, // Cambialo a true para evitar llamadas innecesarias
     usage: { limit: 0, used: 0, remaining: 0 }, // Estado inicial
 
     syncCartWithApi: async () => {

@@ -52,7 +52,7 @@ export default function CheckoutForm() {
 
       // 4. Redirigimos a una página de "gracias"
       // (El webhook ya se encargó de crear la Reservation en el backend)
-      router.push("/order-confirmed");
+      router.replace("/order-confirmed");
     } else {
       // Caso inesperado
       setIsLoading(false);

@@ -2,18 +2,12 @@
 
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { formatCurrency } from "@/lib/utils"; // Asegúrate de tener esta utilidad o usa Intl
+// import { formatCurrency } from "@/lib/utils"; // Asegúrate de tener esta utilidad o usa Intl
 import { Calendar, Package } from "lucide-react";
 
 // Tipo para un pedido (basado en tu modelo Reservation)
@@ -112,6 +106,8 @@ export default function OrdersView() {
                 }
                 alt={order.product_name}
                 fill
+                sizes="(max-width: 768px) 100vw, 200px"
+                loading="eager"
                 className="object-cover"
               />
             </div>
