@@ -8,6 +8,7 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 // 1. Carga la instancia de Stripe con tu clave PÚBLICA
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
@@ -84,13 +85,16 @@ export default function CheckoutPage() {
 
   // 5. Una vez que tenemos el secret, renderizamos el formulario
   return (
-    <div className="container mx-auto py-12 max-w-lg">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Completa tu Pago
-      </h1>
-      <Elements stripe={stripePromise} options={options}>
-        <CheckoutForm />
-      </Elements>
-    </div>
+    <AuthGuard>
+      {/* Ruta protegida / SOLO USUARIOS */}
+      <div className="container mx-auto py-12 max-w-lg">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">
+          Completa tu Pago
+        </h1>
+        <Elements stripe={stripePromise} options={options}>
+          <CheckoutForm />
+        </Elements>
+      </div>
+    </AuthGuard>
   );
 }
