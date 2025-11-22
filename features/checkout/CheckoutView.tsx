@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "@/features/checkout/CheckoutForm";
@@ -9,246 +9,295 @@ import { toast } from "sonner";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Banknote } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { CreditCard, Banknote, CheckCircle, AlertCircle } from "lucide-react";
 
+// Carga de Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export default function CheckoutView() {
   const [clientSecret, setClientSecret] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoadingPaymentIntent, setIsLoadingPaymentIntent] = useState(false);
 
-  // Ref para evitar llamadas duplicadas en Strict Mode
-  const intentCreatedRef = useRef(false);
+  // Estados de carga independientes
+  const [isInitializingCard, setIsInitializingCard] = useState(false);
+  const [isProcessingAction, setIsProcessingAction] = useState(false);
+
+  // Estado para confirmación visual (reemplazo de window.confirm)
+  const [showCashConfirmation, setShowCashConfirmation] = useState(false);
 
   const router = useRouter();
   const { items, isInitialized, clearCart } = useCartStore();
 
+  // Calcular total
   const total = items.reduce(
     (acc, item) => acc + (item.price || 0) * item.quantity,
     0
   );
 
-  useEffect(() => {
-    if (total === 0) {
-      setPaymentMethod("card");
-    }
-  }, [total]);
+  // 1. Efecto para detectar si es GRATIS (Total $0)
+  // Si es gratis, no seleccionamos ni tarjeta ni efectivo, usamos un modo "free" implícito
+  const isFreeOrder = total === 0;
 
-  // Iniciar pago con tarjeta o procesar gratis
+  // 2. Efecto para cargar Stripe SOLO si es necesario
   useEffect(() => {
     let isCancelled = false;
 
-    const initCardPayment = async () => {
-      // Condiciones para NO ejecutar:
-      // 1. Store no listo
-      // 2. Ya se canceló el efecto
-      // 3. Ya estamos cargando un intent
-      // 4. Ya tenemos un secret (y no ha cambiado nada relevante)
-      // 5. El carrito está vacío
+    const fetchClientSecret = async () => {
       if (
         !isInitialized ||
-        isCancelled ||
-        isLoadingPaymentIntent ||
-        items.length === 0
+        items.length === 0 ||
+        isFreeOrder ||
+        paymentMethod !== "card"
       )
         return;
 
-      // Si ya creamos un intento para estos items, no lo volvemos a hacer inmediatamente
-      // (Esto ayuda en dev mode, pero en prod queremos permitir reintentos si falla)
-      // if (intentCreatedRef.current) return;
+      // Si ya tenemos un secret válido, no lo volvemos a pedir
+      if (clientSecret) return;
 
-      if (paymentMethod === "card") {
-        setIsLoadingPaymentIntent(true);
-        // intentCreatedRef.current = true;
-
-        try {
-          const { data } = await api.post(
-            "/checkout/create-payment-intent",
-            {}
-          );
-
-          if (isCancelled) return;
-
-          if (data.isFree) {
-            toast.success("¡Tu pedido gratuito ha sido confirmado!");
-            clearCart();
-            // Pequeño delay para asegurar que el toast se vea
-            setTimeout(() => {
-              window.location.href = "/order-confirmed"; // Forzamos recarga para limpiar estado completo
-            }, 1000);
-            return;
-          }
-
+      setIsInitializingCard(true);
+      try {
+        const { data } = await api.post("/checkout/create-payment-intent", {});
+        if (!isCancelled) {
           setClientSecret(data.clientSecret);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-          if (isCancelled) return;
-          console.error("Error initCardPayment:", error);
-
-          // Si el error es porque ya se procesó (ej. conflicto de escritura),
-          // podría ser que la orden gratis ya se creó.
-          if (error.response?.status === 500 && total === 0) {
-            // Opcional: Podríamos intentar verificar si la orden existe,
-            // pero por seguridad mostramos error y pedimos reintentar.
-          }
-
-          const msg =
-            error.response?.data?.message || "Error al iniciar el pago.";
-          toast.error(msg);
-        } finally {
-          if (!isCancelled) setIsLoadingPaymentIntent(false);
         }
-      } else {
-        setClientSecret("");
+      } catch (error) {
+        if (!isCancelled) {
+          console.error("Error cargando Stripe:", error);
+          toast.error("No se pudo cargar el formulario de pago.");
+        }
+      } finally {
+        if (!isCancelled) setIsInitializingCard(false);
       }
     };
 
-    initCardPayment();
+    fetchClientSecret();
 
     return () => {
       isCancelled = true;
     };
-    // Quitamos 'isLoadingPaymentIntent' de las dependencias para evitar bucles
-  }, [isInitialized, items.length, paymentMethod, router, clearCart, total]);
+  }, [isInitialized, items.length, paymentMethod, isFreeOrder, clientSecret]);
 
-  const handleCashPayment = async () => {
-    if (!confirm("¿Confirmas que pagarás en efectivo al recoger tu pedido?"))
-      return;
+  // --- MANEJADORES DE ACCIÓN (Manuales, no automáticos) ---
 
-    setIsProcessing(true);
+  // A. Confirmar Orden Gratuita
+  const handleFreeOrder = async () => {
+    setIsProcessingAction(true);
     try {
-      await api.post("/checkout/cash-order", {});
-      toast.success("¡Pedido reservado! Paga al recoger.");
-      clearCart();
-      router.push("/order-confirmed");
+      // Reutilizamos el endpoint de payment-intent, el backend detectará $0
+      const { data } = await api.post("/checkout/create-payment-intent", {});
+
+      if (data.isFree) {
+        toast.success("¡Orden gratuita confirmada!");
+        clearCart();
+        router.replace("/order-confirmed");
+      } else {
+        // Esto no debería pasar si el front dice que es $0
+        toast.error("Hubo un problema al procesar la orden gratuita.");
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Error al procesar el pedido en efectivo.");
-      setIsProcessing(false);
+      toast.error("Error al confirmar la orden.");
+    } finally {
+      // No desactivamos el loading si fue éxito para evitar parpadeos antes del redirect
+      // Pero si falló, sí lo desactivamos
+      // setIsProcessingAction(false);
     }
   };
 
-  if (!isInitialized) {
-    return <div className="py-12 text-center">Cargando...</div>;
-  }
+  // B. Confirmar Orden en Efectivo
+  const handleCashOrder = async () => {
+    setIsProcessingAction(true);
+    try {
+      await api.post("/checkout/cash-order", {});
+      toast.success("¡Orden reservada! Paga al recoger.");
+      clearCart();
+      router.replace("/order-confirmed");
+    } catch (error) {
+      console.error(error);
+      toast.error("No se pudo procesar la reserva en efectivo.");
+      setIsProcessingAction(false); // Reactivar botón si falla
+    }
+  };
 
-  if (items.length === 0) {
-    return (
-      <div className="py-12 text-center">
-        <p className="text-gray-600 mb-4">Tu carrito está vacío</p>
-        <Button onClick={() => router.push("/store")}>Ver Productos</Button>
-      </div>
-    );
-  }
+  // --- RENDERIZADO ---
+
+  if (!isInitialized)
+    return <div className="py-12 text-center">Cargando...</div>;
+  if (items.length === 0) return null; // El AuthGuard o useEffect de página redirigirá
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Selector de Método de Pago */}
-      {total > 0 && (
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <Button
-            variant={paymentMethod === "card" ? "default" : "outline"}
-            className={`h-24 flex flex-col gap-2 ${
-              paymentMethod === "card"
-                ? "bg-green-700 text-white hover:bg-green-800"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-            onClick={() => setPaymentMethod("card")}
-          >
-            <CreditCard size={32} />
-            <span>Pagar con Tarjeta</span>
-          </Button>
-          <Button
-            variant={paymentMethod === "cash" ? "default" : "outline"}
-            className={`h-24 flex flex-col gap-2 ${
-              paymentMethod === "cash"
-                ? "bg-slate-700 text-white hover:bg-slate-800"
-                : "bg-white text-gray-700 hover:bg-gray-50"
-            }`}
-            onClick={() => setPaymentMethod("cash")}
-          >
-            <Banknote size={32} />
-            <span>Pagar en Efectivo</span>
-          </Button>
-        </div>
-      )}
-
-      {/* Mensaje para productos gratis */}
-      {total === 0 && (
-        <Card className="mb-8 border-green-200 bg-green-50">
-          <CardContent className="pt-6">
-            <p className="text-green-800 text-center font-medium">
-              🎉 ¡Estos productos son gratuitos! Estamos procesando tu pedido...
-            </p>
-            {/* Spinner de carga si estamos procesando la orden gratis */}
-            {isLoadingPaymentIntent && (
-              <div className="flex justify-center mt-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700"></div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Vista de Tarjeta */}
-      {paymentMethod === "card" && total > 0 && (
-        <>
-          {isLoadingPaymentIntent ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-gray-600 mb-4">
-                  Preparando formulario de pago...
-                </p>
-                <div className="flex justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : clientSecret ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Datos de la Tarjeta</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Elements
-                  stripe={stripePromise}
-                  options={{ clientSecret, appearance: { theme: "stripe" } }}
-                >
-                  <CheckoutForm />
-                </Elements>
-              </CardContent>
-            </Card>
-          ) : null}
-        </>
-      )}
-
-      {/* Vista de Efectivo */}
-      {paymentMethod === "cash" && total > 0 && (
-        <Card className="border-dashed border-2 border-slate-300 bg-slate-50">
+      {/* SECCIÓN 1: Si es una orden GRATIS ($0) */}
+      {isFreeOrder && (
+        <Card className="border-green-200 bg-green-50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-700">
-              <Banknote /> Confirmación de Pago en Efectivo
+            <CardTitle className="text-green-800 flex items-center gap-2">
+              <CheckCircle /> Orden Gratuita
             </CardTitle>
+            <CardDescription>
+              Estos productos son una donación o tienen un costo de $0.00.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-6">
-            <p className="text-gray-600">
-              Al confirmar, tus productos quedarán reservados. <br />
-              Deberás pagar el total de <strong>${total.toFixed(2)}</strong> al
-              momento de recoger tu pedido.
+          <CardContent>
+            <p className="mb-6 text-sm text-gray-600">
+              No necesitas ingresar datos de pago. Simplemente confirma tu
+              pedido para reservarlo.
             </p>
             <Button
               size="lg"
-              className="w-full bg-slate-800 hover:bg-slate-900 text-white"
-              onClick={handleCashPayment}
-              disabled={isProcessing}
+              className="w-full bg-green-700 hover:bg-green-800 cursor-pointer"
+              onClick={handleFreeOrder}
+              disabled={isProcessingAction}
             >
-              {isProcessing ? "Reservando..." : "Confirmar Reserva"}
+              {isProcessingAction ? "Confirmando..." : "Confirmar Orden Gratis"}
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* SECCIÓN 2: Si es una orden DE PAGO (> $0) */}
+      {!isFreeOrder && (
+        <>
+          {/* Selector de Método */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <Button
+              variant={paymentMethod === "card" ? "default" : "outline"}
+              className={`h-24 flex flex-col gap-2 cursor-pointer ${
+                paymentMethod === "card"
+                  ? "bg-green-700 text-white hover:bg-green-800"
+                  : "bg-white text-gray-700"
+              }`}
+              onClick={() => {
+                setPaymentMethod("card");
+                setShowCashConfirmation(false);
+              }}
+              disabled={isProcessingAction}
+            >
+              <CreditCard size={32} />
+              <span>Tarjeta</span>
+            </Button>
+            <Button
+              variant={paymentMethod === "cash" ? "default" : "outline"}
+              className={`h-24 flex flex-col gap-2 cursor-pointer ${
+                paymentMethod === "cash"
+                  ? "bg-slate-700 text-white hover:bg-slate-800"
+                  : "bg-white text-gray-700"
+              }`}
+              onClick={() => setPaymentMethod("cash")}
+              disabled={isProcessingAction}
+            >
+              <Banknote size={32} />
+              <span>Efectivo</span>
+            </Button>
+          </div>
+
+          {/* Área de Contenido Según Método */}
+          <div className="min-h-[300px]">
+            {/* CASO TARJETA */}
+            {paymentMethod === "card" && (
+              <>
+                {isInitializingCard ? (
+                  <Card>
+                    <CardContent className="py-12 flex flex-col items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700 mb-4"></div>
+                      <p className="text-gray-500">Conectando con Stripe...</p>
+                    </CardContent>
+                  </Card>
+                ) : clientSecret ? (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pago Seguro con Tarjeta</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Elements
+                        stripe={stripePromise}
+                        options={{
+                          clientSecret,
+                          appearance: { theme: "stripe" },
+                        }}
+                      >
+                        <CheckoutForm />
+                      </Elements>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="text-center py-4 text-red-500">
+                    Error al cargar el formulario. Recarga la página.
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* CASO EFECTIVO */}
+            {paymentMethod === "cash" && (
+              <Card className="border-dashed border-2 border-slate-300 bg-slate-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-slate-700">
+                    <Banknote /> Pago en Efectivo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {!showCashConfirmation ? (
+                    // Paso 1: Información
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-6">
+                        Pagarás un total de <strong>${total.toFixed(2)}</strong>{" "}
+                        al momento de recoger tu pedido.
+                      </p>
+                      <Button
+                        variant="default"
+                        className="w-full bg-slate-800 hover:bg-slate-900 cursor-pointer"
+                        onClick={() => setShowCashConfirmation(true)}
+                      >
+                        Continuar
+                      </Button>
+                    </div>
+                  ) : (
+                    // Paso 2: Confirmación (Reemplazo de window.confirm)
+                    <div className="text-center animate-in fade-in zoom-in duration-300">
+                      <div className="flex justify-center mb-4">
+                        <AlertCircle className="h-12 w-12 text-orange-500" />
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">
+                        ¿Confirmar reserva?
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Al confirmar, te comprometes a recoger y pagar tu pedido
+                        dentro del horario establecido.
+                      </p>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 cursor-pointer"
+                          onClick={() => setShowCashConfirmation(false)}
+                          disabled={isProcessingAction}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          className="flex-1 bg-green-700 hover:bg-green-800 cursor-pointer"
+                          onClick={handleCashOrder}
+                          disabled={isProcessingAction}
+                        >
+                          {isProcessingAction
+                            ? "Procesando..."
+                            : "Sí, Confirmar"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

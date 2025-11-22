@@ -64,6 +64,7 @@ export default function CartPage() {
                   ${((item.price || 0) * item.quantity).toFixed(2)}
                 </p>
                 <Button
+                  className="cursor-pointer"
                   variant="destructive"
                   size="sm"
                   onClick={() => handleRemove(item._id)}
@@ -78,7 +79,7 @@ export default function CartPage() {
           </div>
           <div className="flex justify-end mt-4">
             <Button
-              className="bg-green-700 hover:bg-green-800 text-lg px-8 py-4"
+              className="bg-green-700 hover:bg-green-800 text-lg px-8 py-4 cursor-pointer"
               onClick={() => router.push("/checkout")} // Ir a Pagar
             >
               Proceder al Pago
