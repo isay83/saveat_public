@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LandingClient from "@/features/landing/LandingClient";
+import SurveyModal from "@/components/survey/SurveyModal";
 
 // 1. Exportamos la Metadata para ESTA página (Server Component)
 export const metadata: Metadata = {
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 // 2. Este es un Server Component. No usa "use client".
 export default function HomePage() {
   // 3. Importa y renderiza el Client Component que tiene toda la lógica.
-  return <LandingClient />;
+  return (
+    <>
+      <LandingClient />
+      <SurveyModal />
+    </>
+  );
 }
